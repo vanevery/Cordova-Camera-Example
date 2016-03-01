@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="text/javascript" src="cordova.js"></script>
+        <script type="text/javascript">
+        	// Variable to hold pointer to file system
+        	var fileSystem = null;
+        	
+        	// Variable to hold the image URI from the camera
+        	var imageUri = null;
+        
+        	// When the Cordova deviceready event fires
+			function onDeviceReady() {
+				console.log("onDeviceReady");
+
+				// Use the Cordova Camera plugin to capture an image
+				navigator.camera.getPicture(onGetPictureSuccess, onGetPictureFail, { quality: 50,
+					destinationType: Camera.DestinationType.FILE_URI
+				});
+			}	
+
+			// If we successfully got a picture from the camera
+			function onGetPictureSuccess(imageData) {
+				// Console log the URI
+				console.log(imageData);
+				
+				// Save it to global variable
+				imageUri = imageData;
+				
+				// Display it on the page
+				var image = document.getElementById('mypicture');
+				image.src = imageData;
+	
+				// Request access to the file system
+				window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, gotFSSuccess, gotFSError);
+	
+			}
+			
+			// Failed to get a picture from the camera
+			function onGetPictureFail(message) {
+				alert('Failed because: ' + message);
+			}
+
+			// Got access to the file system
+			function gotFSSuccess(_fileSystem) {
+				// Save pointer to global variable
+				fileSystem = _fileSystem;
+				
+				// Resolve the imageUri to a file pointer
+				window.resolveLocalFileSystemURL(imageUri, gotImageFile, gotImageFileError);        
+			}
+
+			// Got an error trying to access file system
+			function gotFSError(err) {
+				console.log("Error: " + err);
+			}				
+			
+			// Resolved image file Uri to File
+			function gotImageFile(fileEntry) {
+					// Move the file to a permanent place
+				   fileEntry.moveTo(fileSystem.root, "blahblah", movedImageSuccess, moveerrorHandler);
+			}
+
+			// Got error trying to resolve image file uri to file
+			function gotImageFileError(err) {
+					console.log("Image File Error: " + err);
+			}
+
+			// Successfully moved image file
+			function movedImageSuccess(fileEntry) {
+					console.log("Moved Image Success" + fileEntry.fullPath);
+			}
+
+			// Got an error trying to move image file
+			function moveerrorHandler(err) {
+					console.log("MoveErrorHander: " + err);
+			}						
+			
+			// Register for the page load event and the cordova device ready events
+			window.addEventListener('load', function() {
+				document.addEventListener('deviceready', onDeviceReady);
+			});
+
+        </script>
+    </head>
+    <body>
+    	<img id="mypicture">    	
+    </body>
+</html>
