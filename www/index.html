@@ -15,7 +15,8 @@
 
 				// Use the Cordova Camera plugin to capture an image
 				navigator.camera.getPicture(onGetPictureSuccess, onGetPictureFail, { quality: 50,
-					destinationType: Camera.DestinationType.FILE_URI
+					destinationType: Camera.DestinationType.FILE_URI,
+					saveToPhotoAlbum: true //needed to access local iOS camera roll
 				});
 			}	
 
